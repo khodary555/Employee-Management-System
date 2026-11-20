@@ -1,131 +1,80 @@
-
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.io.*;
+import java.util.*;
 
 public class FileHandler {
+    private static final String EMP_FILE = "employees.csv";
+    private static final String DEPT_FILE = "departments.csv";
 
-    private static final String EMPLOYEE_FILE = "employees.csv";
-    private static final String DEPARTMENT_FILE = "departments.csv";
+    public static void saveEmployees(List<Employee> employees) throws Exception {
+        PrintWriter writer = new PrintWriter(new FileWriter(EMP_FILE));
+        writer.println("id,fullName,age,department,position,employeeType,field1,field2");
+        for (Employee e : employees) {
+            writer.println(e.toCsvString());
+        }
+        writer.close();
+    }
 
-    // ---------- Employee file operations ----------
+    public static List<Employee> loadEmployees() throws Exception {
+        List<Employee> list = new ArrayList<>();
+        File f = new File(EMP_FILE);
+        if (!f.exists()) return list;
 
-    public static void saveEmployees(List<Employee> employees) throws IOException {
-        File file = new File(EMPLOYEE_FILE);
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
-            writer.write("id,fullName,age,department,position,employeeType,field1,field2");
-            writer.newLine();
-            for (Employee emp : employees) {
-                writer.write(emp.toCsvString());
-                writer.newLine();
+        Scanner sc = new Scanner(f);
+        sc.nextLine(); // skip header
+        while (sc.hasNextLine()) {
+            String line = sc.nextLine();
+            if (line.trim().isEmpty()) continue;
+            String[] p = line.split(",", -1);
+            if (p.length < 8) continue;
+
+            int id = Integer.parseInt(p[0].trim());
+            String name = p[1].trim();
+            int age = Integer.parseInt(p[2].trim());
+            String dept = p[3].trim();
+            String pos = p[4].trim();
+            String type = p[5].trim();
+
+            if (type.equals("Full-Time")) {
+                double b = Double.parseDouble(p[6].trim());
+                double bo = Double.parseDouble(p[7].trim());
+                list.add(new FullTimeEmployee(id, name, age, dept, pos, b, bo));
+            } else if (type.equals("Part-Time")) {
+                double r = Double.parseDouble(p[6].trim());
+                double h = Double.parseDouble(p[7].trim());
+                list.add(new PartTimeEmployee(id, name, age, dept, pos, r, h));
             }
         }
+        sc.close();
+        return list;
     }
 
-    public static List<Employee> loadEmployees() throws IOException {
-        List<Employee> employees = new ArrayList<>();
-        File file = new File(EMPLOYEE_FILE);
-        if (!file.exists()) {
-            return employees; // first launch, no data yet
+    public static void saveDepartments(List<Department> departments) throws Exception {
+        PrintWriter writer = new PrintWriter(new FileWriter(DEPT_FILE));
+        writer.println("id,name");
+        for (Department d : departments) {
+            writer.println(d.getId() + "," + d.getName());
         }
+        writer.close();
+    }
 
-        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-            String line = reader.readLine(); // skip header
-            while ((line = reader.readLine()) != null) {
-                if (line.trim().isEmpty()) {
-                    continue;
-                }
-                Employee emp = parseEmployeeLine(line);
-                if (emp != null) {
-                    employees.add(emp);
-                }
+    public static List<Department> loadDepartments() throws Exception {
+        List<Department> list = new ArrayList<>();
+        File f = new File(DEPT_FILE);
+        if (!f.exists()) return list;
+
+        Scanner sc = new Scanner(f);
+        sc.nextLine(); // skip header
+        while (sc.hasNextLine()) {
+            String line = sc.nextLine();
+            if (line.trim().isEmpty()) continue;
+            String[] p = line.split(",", -1);
+            if (p.length >= 2) {
+                int id = Integer.parseInt(p[0].trim());
+                String name = p[1].trim();
+                list.add(new Department(id, name));
             }
         }
-        return employees;
-    }
-
-    private static Employee parseEmployeeLine(String line) {
-        String[] parts = line.split(",", -1);
-        if (parts.length < 8) {
-            return null;
-        }
-        try {
-            int id = Integer.parseInt(parts[0].trim());
-            String fullName = parts[1].trim();
-            int age = Integer.parseInt(parts[2].trim());
-            String department = parts[3].trim();
-            String position = parts[4].trim();
-            String type = parts[5].trim();
-
-            switch (type) {
-                case "Full-Time":
-                    double basicSalary = Double.parseDouble(parts[6].trim());
-                    double bonus = Double.parseDouble(parts[7].trim());
-                    return new FullTimeEmployee(id, fullName, age, department, position, basicSalary, bonus);
-                case "Part-Time":
-                    double hourlyRate = Double.parseDouble(parts[6].trim());
-                    double hoursWorked = Double.parseDouble(parts[7].trim());
-                    return new PartTimeEmployee(id, fullName, age, department, position, hourlyRate, hoursWorked);
-                default:
-                    return null;
-            }
-        } catch (NumberFormatException e) {
-            return null;
-        }
-    }
-
-    // ---------- Department file operations ----------
-
-    public static void saveDepartments(List<Department> departments) throws IOException {
-        File file = new File(DEPARTMENT_FILE);
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
-            writer.write("id,name");
-            writer.newLine();
-            for (Department dept : departments) {
-                writer.write(dept.getId() + "," + dept.getName());
-                writer.newLine();
-            }
-        }
-    }
-
-    public static List<Department> loadDepartments() throws IOException {
-        List<Department> departments = new ArrayList<>();
-        File file = new File(DEPARTMENT_FILE);
-        if (!file.exists()) {
-            return departments;
-        }
-
-        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-            String line = reader.readLine(); // skip header
-            while ((line = reader.readLine()) != null) {
-                if (line.trim().isEmpty()) {
-                    continue;
-                }
-                String[] parts = line.split(",", -1);
-                if (parts.length >= 2) {
-                    try {
-                        int id = Integer.parseInt(parts[0].trim());
-                        String name = parts[1].trim();
-                        departments.add(new Department(id, name));
-                    } catch (NumberFormatException e) {
-                        // skip malformed line
-                    }
-                }
-            }
-        }
-        return departments;
-    }
-
-    public static String getEmployeeFileName() {
-        return EMPLOYEE_FILE;
-    }
-
-    public static String getDepartmentFileName() {
-        return DEPARTMENT_FILE;
+        sc.close();
+        return list;
     }
 }

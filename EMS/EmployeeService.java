@@ -1,167 +1,118 @@
-
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class EmployeeService {
-
-    private List<Employee> employees;
-    private List<Department> departments;
+    private List<Employee> employees = new ArrayList<>();
+    private List<Department> departments = new ArrayList<>();
 
     public EmployeeService() {
-        employees = new ArrayList<>();
-        departments = new ArrayList<>();
-        seedDefaultDepartments();
+        departments.add(new Department(1, "IT"));
+        departments.add(new Department(2, "Human Resources"));
+        departments.add(new Department(3, "Finance"));
+        departments.add(new Department(4, "Marketing"));
+        departments.add(new Department(5, "Sales"));
     }
 
-    private void seedDefaultDepartments() {
-        addDepartment(new Department(1, "IT"));
-        addDepartment(new Department(2, "Human Resources"));
-        addDepartment(new Department(3, "Finance"));
-        addDepartment(new Department(4, "Marketing"));
-        addDepartment(new Department(5, "Sales"));
-    }
+    // ---------- Employees ----------
 
-    // ---------- Employee operations ----------
-
-    public void addEmployee(Employee employee) {
-        if (employee == null) {
-            throw new IllegalArgumentException("Employee cannot be null.");
+    public boolean addEmployee(Employee e) {
+        for (Employee emp : employees) {
+            if (emp.getId() == e.getId()) return false; // duplicate ID
         }
-        if (employees.stream().anyMatch(e -> e.getId() == employee.getId())) {
-            throw new IllegalArgumentException("Employee ID " + employee.getId() + " already exists.");
-        }
-        employees.add(employee);
+        employees.add(e);
+        return true;
     }
 
     public List<Employee> getAllEmployees() {
-        return new ArrayList<>(employees);
+        return employees;
     }
 
     public Employee findEmployeeById(int id) {
-        for (Employee emp : employees) {
-            if (emp.getId() == id) {
-                return emp;
-            }
+        for (Employee e : employees) {
+            if (e.getId() == id) return e;
         }
         return null;
     }
 
-    public List<Employee> searchByDepartment(String department) {
-        if (department == null || department.trim().isEmpty()) {
-            return new ArrayList<>();
+    public List<Employee> searchByDepartment(String dept) {
+        List<Employee> result = new ArrayList<>();
+        for (Employee e : employees) {
+            if (e.getDepartment().equalsIgnoreCase(dept)) {
+                result.add(e);
+            }
         }
-        String target = department.trim().toLowerCase();
-        return employees.stream()
-                .filter(e -> e.getDepartment() != null
-                        && e.getDepartment().toLowerCase().equals(target))
-                .collect(Collectors.toList());
+        return result;
     }
 
-    public void updateEmployee(int originalId, Employee updatedEmployee) {
-        if (updatedEmployee == null) {
-            throw new IllegalArgumentException("Updated employee cannot be null.");
-        }
-        int index = -1;
+    public boolean updateEmployee(int oldId, Employee updated) {
         for (int i = 0; i < employees.size(); i++) {
-            if (employees.get(i).getId() == originalId) {
-                index = i;
-                break;
-            }
-        }
-        if (index == -1) {
-            throw new IllegalArgumentException("Employee with ID " + originalId + " not found.");
-        }
-        if (updatedEmployee.getId() != originalId) {
-            for (Employee emp : employees) {
-                if (emp.getId() == updatedEmployee.getId() && emp != employees.get(index)) {
-                    throw new IllegalArgumentException("Employee ID " + updatedEmployee.getId() + " already exists.");
+            if (employees.get(i).getId() == oldId) {
+                if (updated.getId() != oldId) {
+                    for (Employee e : employees) {
+                        if (e.getId() == updated.getId()) return false;
+                    }
                 }
+                employees.set(i, updated);
+                return true;
             }
         }
-        employees.set(index, updatedEmployee);
+        return false; // not found
     }
 
     public boolean deleteEmployee(int id) {
-        return employees.removeIf(emp -> emp.getId() == id);
+        return employees.removeIf(e -> e.getId() == id);
     }
 
     public int getEmployeeCount() {
         return employees.size();
     }
 
-    // ---------- Department operations ----------
+    // ---------- Departments ----------
 
     public List<Department> getAllDepartments() {
-        return new ArrayList<>(departments);
+        return departments;
     }
 
     public List<String> getDepartmentNames() {
-        return departments.stream().map(Department::getName).collect(Collectors.toList());
+        List<String> names = new ArrayList<>();
+        for (Department d : departments) names.add(d.getName());
+        return names;
     }
 
-    public Department findDepartmentById(int id) {
-        for (Department d : departments) {
-            if (d.getId() == id)
-                return d;
+    public boolean addDepartment(Department d) {
+        for (Department dept : departments) {
+            if (dept.getId() == d.getId()) return false;
+            if (dept.getName().equalsIgnoreCase(d.getName())) return false;
         }
-        return null;
-    }
-
-    public Department findDepartmentByName(String name) {
-        if (name == null)
-            return null;
-        for (Department d : departments) {
-            if (d.getName().equalsIgnoreCase(name))
-                return d;
-        }
-        return null;
-    }
-
-    public void addDepartment(Department department) {
-        if (department == null) {
-            throw new IllegalArgumentException("Department cannot be null.");
-        }
-        if (departments.stream().anyMatch(d -> d.getId() == department.getId())) {
-            throw new IllegalArgumentException("Department ID " + department.getId() + " already exists.");
-        }
-        if (departments.stream().anyMatch(d -> d.getName().equalsIgnoreCase(department.getName()))) {
-            throw new IllegalArgumentException("Department name '" + department.getName() + "' already exists.");
-        }
-        departments.add(department);
+        departments.add(d);
+        return true;
     }
 
     public boolean deleteDepartment(int id) {
         return departments.removeIf(d -> d.getId() == id);
     }
 
+    // ---------- File handling ----------
+
     public void loadData() {
         try {
             var emps = FileHandler.loadEmployees();
             var depts = FileHandler.loadDepartments();
-
             employees.clear();
             departments.clear();
-
-            for (Department d : depts) {
-                departments.add(d);
-            }
-            for (Employee e : emps) {
-                employees.add(e);
-            }
-        } catch (Exception e) {
-            // First launch or missing file — start empty
-            employees.clear();
-            departments.clear();
+            for (Department d : depts) departments.add(d);
+            for (Employee e : emps) employees.add(e);
+        } catch (Exception ex) {
+            // first launch or missing file — start empty
         }
     }
 
     public void saveData() {
         try {
-            FileHandler.saveEmployees(new ArrayList<>(employees));
-            FileHandler.saveDepartments(new ArrayList<>(departments));
-        } catch (Exception e) {
-
+            FileHandler.saveEmployees(employees);
+            FileHandler.saveDepartments(departments);
+        } catch (Exception ex) {
+            // ignore
         }
     }
 }
