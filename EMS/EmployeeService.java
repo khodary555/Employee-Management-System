@@ -134,4 +134,34 @@ public class EmployeeService {
     public boolean deleteDepartment(int id) {
         return departments.removeIf(d -> d.getId() == id);
     }
+
+    public void loadData() {
+        try {
+            var emps = FileHandler.loadEmployees();
+            var depts = FileHandler.loadDepartments();
+
+            employees.clear();
+            departments.clear();
+
+            for (Department d : depts) {
+                departments.add(d);
+            }
+            for (Employee e : emps) {
+                employees.add(e);
+            }
+        } catch (Exception e) {
+            // First launch or missing file — start empty
+            employees.clear();
+            departments.clear();
+        }
+    }
+
+    public void saveData() {
+        try {
+            FileHandler.saveEmployees(new ArrayList<>(employees));
+            FileHandler.saveDepartments(new ArrayList<>(departments));
+        } catch (Exception e) {
+
+        }
+    }
 }

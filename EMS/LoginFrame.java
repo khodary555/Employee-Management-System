@@ -1,101 +1,45 @@
-
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.*;
 
 public class LoginFrame extends JFrame {
-
-    private static final String USERNAME = "admin";
-    private static final String PASSWORD = "admin123";
-
-    private JTextField usernameField;
-    private JPasswordField passwordField;
+    private JTextField userField;
+    private JPasswordField passField;
 
     public LoginFrame() {
-        setTitle("Employee Management System - Login");
-        setSize(400, 250);
+        setTitle("Login");
+        setSize(350, 200);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
-        setResizable(false);
-        initUI();
-    }
 
-    private void initUI() {
-        JPanel panel = new JPanel(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(8, 8, 8, 8);
-        gbc.fill = GridBagConstraints.HORIZONTAL;
+        JPanel panel = new JPanel(new GridLayout(4, 2, 10, 10));
+        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        JLabel titleLabel = new JLabel("Employee Management System");
-        titleLabel.setFont(new Font("SansSerif", Font.BOLD, 18));
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.gridwidth = 2;
-        panel.add(titleLabel, gbc);
+        panel.add(new JLabel("Username:"));
+        userField = new JTextField();
+        panel.add(userField);
 
-        gbc.gridwidth = 1;
-        gbc.anchor = GridBagConstraints.EAST;
-        JLabel userLabel = new JLabel("Username:");
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        panel.add(userLabel, gbc);
+        panel.add(new JLabel("Password:"));
+        passField = new JPasswordField();
+        panel.add(passField);
 
-        usernameField = new JTextField(20);
-        gbc.gridx = 1;
-        gbc.gridy = 1;
-        gbc.anchor = GridBagConstraints.WEST;
-        panel.add(usernameField, gbc);
-
-        JLabel passLabel = new JLabel("Password:");
-        gbc.gridx = 0;
-        gbc.gridy = 2;
-        gbc.anchor = GridBagConstraints.EAST;
-        panel.add(passLabel, gbc);
-
-        passwordField = new JPasswordField(20);
-        gbc.gridx = 1;
-        gbc.gridy = 2;
-        gbc.anchor = GridBagConstraints.WEST;
-        panel.add(passwordField, gbc);
-
-        JButton loginButton = new JButton("Login");
-        JButton exitButton = new JButton("Exit");
-
-        gbc.gridx = 0;
-        gbc.gridy = 3;
-        gbc.gridwidth = 2;
-        gbc.anchor = GridBagConstraints.CENTER;
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 5));
-        buttonPanel.add(loginButton);
-        buttonPanel.add(exitButton);
-        panel.add(buttonPanel, gbc);
+        JButton loginBtn = new JButton("Login");
+        JButton exitBtn = new JButton("Exit");
+        panel.add(loginBtn);
+        panel.add(exitBtn);
 
         add(panel);
 
-        loginButton.addActionListener(e -> attemptLogin());
-        exitButton.addActionListener(e -> System.exit(0));
-        getRootPane().setDefaultButton(loginButton);
-    }
+        loginBtn.addActionListener(e -> {
+            if (userField.getText().equals("admin") &&
+                    new String(passField.getPassword()).equals("admin123")) {
+                new MainFrame().setVisible(true);
+                dispose();
+            } else {
+                JOptionPane.showMessageDialog(this, "Invalid login!");
+            }
+        });
 
-    private void attemptLogin() {
-        String username = usernameField.getText().trim();
-        String password = new String(passwordField.getPassword());
-
-        if (username.isEmpty() || password.isEmpty()) {
-            JOptionPane.showMessageDialog(this,
-                    "Please enter both username and password.",
-                    "Login Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        if (USERNAME.equals(username) && PASSWORD.equals(password)) {
-            MainFrame mainFrame = new MainFrame();
-            mainFrame.setVisible(true);
-            this.dispose();
-        } else {
-            JOptionPane.showMessageDialog(this,
-                    "Invalid username or password. Try admin / admin123.",
-                    "Login Failed", JOptionPane.ERROR_MESSAGE);
-            passwordField.setText("");
-        }
+        exitBtn.addActionListener(e -> System.exit(0));
     }
 }
