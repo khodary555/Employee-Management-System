@@ -1,0 +1,77 @@
+@startuml classDiagram
+title Employee Management System - Class Diagram (backend)
+
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+hide empty members
+
+abstract class Employee {
+  - id: int
+  - fullName: String
+  - age: int
+  - department: String
+  - position: String
+  + {abstract} calculateSalary(): double
+  + {abstract} getEmployeeType(): String
+  + {abstract} toCsvString(): String
+}
+
+class FullTimeEmployee {
+  - basicSalary: double
+  - bonus: double
+  + calculateSalary(): double
+  + getEmployeeType(): String
+  + toCsvString(): String
+}
+
+class PartTimeEmployee {
+  - hourlyRate: double
+  - hoursWorked: double
+  + calculateSalary(): double
+  + getEmployeeType(): String
+  + toCsvString(): String
+}
+
+class Department {
+  - id: int
+  - name: String
+  + equals(obj: Object): boolean
+}
+
+class EmployeeService {
+  - employees: List<Employee>
+  - departments: List<Department>
+  + addEmployee(e: Employee): boolean
+  + findEmployeeById(id: int): Employee
+  + searchByDepartment(dept: String): List<Employee>
+  + updateEmployee(oldId: int, updated: Employee): boolean
+  + deleteEmployee(id: int): boolean
+  + addDepartment(d: Department): boolean
+  + deleteDepartment(id: int): boolean
+  + loadData(): void
+  + saveData(): void
+}
+
+class FileHandler <<utility>> {
+  - {static} EMP_FILE: String
+  - {static} DEPT_FILE: String
+  + {static} saveEmployees(list: List<Employee>): void
+  + {static} loadEmployees(): List<Employee>
+  + {static} saveDepartments(list: List<Department>): void
+  + {static} loadDepartments(): List<Department>
+}
+
+Employee <|-- FullTimeEmployee
+Employee <|-- PartTimeEmployee
+
+EmployeeService o-- "0..*" Employee 
+EmployeeService o-- "0..*" Department 
+
+EmployeeService ..> FileHandler 
+FileHandler ..> FullTimeEmployee 
+FileHandler ..> PartTimeEmployee 
+
+
+
+
+@enduml

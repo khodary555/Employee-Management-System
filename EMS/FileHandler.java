@@ -20,7 +20,7 @@ public class FileHandler {
         if (!f.exists()) return list;
 
         Scanner sc = new Scanner(f);
-        sc.nextLine(); // skip header
+        sc.nextLine(); 
         while (sc.hasNextLine()) {
             String line = sc.nextLine();
             if (line.trim().isEmpty()) continue;
@@ -63,7 +63,7 @@ public class FileHandler {
         if (!f.exists()) return list;
 
         Scanner sc = new Scanner(f);
-        sc.nextLine(); // skip header
+        sc.nextLine(); 
         while (sc.hasNextLine()) {
             String line = sc.nextLine();
             if (line.trim().isEmpty()) continue;

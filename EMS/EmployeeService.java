@@ -13,11 +13,10 @@ public class EmployeeService {
         departments.add(new Department(5, "Sales"));
     }
 
-    // ---------- Employees ----------
 
     public boolean addEmployee(Employee e) {
         for (Employee emp : employees) {
-            if (emp.getId() == e.getId()) return false; // duplicate ID
+            if (emp.getId() == e.getId()) return false; 
         }
         employees.add(e);
         return true;
@@ -56,7 +55,7 @@ public class EmployeeService {
                 return true;
             }
         }
-        return false; // not found
+        return false; 
     }
 
     public boolean deleteEmployee(int id) {
@@ -67,7 +66,6 @@ public class EmployeeService {
         return employees.size();
     }
 
-    // ---------- Departments ----------
 
     public List<Department> getAllDepartments() {
         return departments;
@@ -92,7 +90,6 @@ public class EmployeeService {
         return departments.removeIf(d -> d.getId() == id);
     }
 
-    // ---------- File handling ----------
 
     public void loadData() {
         try {
@@ -103,7 +100,6 @@ public class EmployeeService {
             for (Department d : depts) departments.add(d);
             for (Employee e : emps) employees.add(e);
         } catch (Exception ex) {
-            // first launch or missing file — start empty
         }
     }
 
@@ -112,7 +108,6 @@ public class EmployeeService {
             FileHandler.saveEmployees(employees);
             FileHandler.saveDepartments(departments);
         } catch (Exception ex) {
-            // ignore
         }
     }
 }
