@@ -17,14 +17,12 @@ public class MainFrame extends JFrame {
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        // Top bar
         JPanel top = new JPanel(new BorderLayout());
         top.add(new JLabel("Welcome, Administrator"), BorderLayout.WEST);
         JButton logoutBtn = new JButton("Logout");
         top.add(logoutBtn, BorderLayout.EAST);
         add(top, BorderLayout.NORTH);
 
-        // Left navigation
         JPanel nav = new JPanel();
         nav.setLayout(new BoxLayout(nav, BoxLayout.Y_AXIS));
         JButton btnDashboard = new JButton("Dashboard");
@@ -41,7 +39,6 @@ public class MainFrame extends JFrame {
         nav.add(btnDept);
         add(nav, BorderLayout.WEST);
 
-        // Center cards
         cards = new CardLayout();
         center = new JPanel(cards);
         center.add(new DashboardPanel(), "dashboard");
@@ -52,7 +49,7 @@ public class MainFrame extends JFrame {
         center.add(new DepartmentManagementPanel(service), "dept");
         add(center, BorderLayout.CENTER);
 
-        // Button actions
+        // Buttons
         btnDashboard.addActionListener(e -> cards.show(center, "dashboard"));
         btnAdd.addActionListener(e -> cards.show(center, "add"));
         btnView.addActionListener(e -> {
