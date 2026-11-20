@@ -1,4 +1,3 @@
-package EMS;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -9,11 +8,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Handles reading and writing employee and department data to CSV files.
- * Demonstrates separation of concerns: file handling is isolated from GUI and
- * business logic.
- */
 public class FileHandler {
 
     private static final String EMPLOYEE_FILE = "employees.csv";

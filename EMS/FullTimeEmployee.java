@@ -1,11 +1,6 @@
-package EMS;
 
 import java.io.Serializable;
 
-/**
- * Full-Time Employee: fixed monthly salary plus optional bonus.
- * Monthly Salary = Basic Salary + Bonus
- */
 public class FullTimeEmployee extends Employee implements Serializable {
 
     private static final long serialVersionUID = 1L;
