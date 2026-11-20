@@ -1,2 +1,3 @@
 id,fullName,age,department,position,employeeType,field1,field2
 1,Alice Smith,30,IT,Senior Developer,Full-Time,16000.0,3000.0
+23,ahmed,20,IT,intern,Full-Time,200.0,20.0
